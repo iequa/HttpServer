@@ -16,7 +16,7 @@ public class HandlerResolver extends HandlerBase {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        System.out.println("Getting request from \""
+        System.out.println(exchange.getRequestMethod() + " request from \""
                 + exchange.getRemoteAddress().getHostName()
                 + "\", address: \""
                 + exchange.getRemoteAddress().getAddress()
@@ -34,7 +34,7 @@ public class HandlerResolver extends HandlerBase {
                 throw new ClassNotFoundException("Обработчик не найден");
             }
         } catch (Exception ex) {
-            new ResponseCreator().SendNotFoundResponse(exchange, ex.getMessage());
+            new ResponseCreator().sendNotFoundResponse(exchange, ex.getMessage());
         }
     }
 
