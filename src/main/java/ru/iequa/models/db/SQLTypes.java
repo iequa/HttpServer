@@ -7,6 +7,7 @@ public enum SQLTypes {
     INT("int4"),
     SERIAL("int4"),
     DATE("date"),
+    TIMESTAMP("timestamp"),
     BINARY("bytea");
 
     private final String value;
@@ -32,7 +33,10 @@ public enum SQLTypes {
         if (name.equals(BINARY.value)) {
             return BINARY;
         }
-        throw new NoSuchObjectException("Типа " + name + " не существует");
+        if (name.equals(TIMESTAMP.value)) {
+            return TIMESTAMP;
+        }
+        throw new NoSuchObjectException("Ошибка приведения типа. Типа " + name + " не существует");
     }
 
     @Override

@@ -12,7 +12,6 @@ import ru.iequa.utils.ResponseCreator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.Base64;
 
 public class GetNewsData extends HandlerBase {
@@ -42,6 +41,7 @@ public class GetNewsData extends HandlerBase {
                 final int id = (int) row.getElement("id");
                 final String title = (String) row.getElement("title");
                 final String body = (String) row.getElement("body");
+                final Timestamp date = (Timestamp) row.getElement("date");
                 final byte[] prev = (byte[]) row.getElement("img");
                 new ResponseCreator().sendResponseWithBody(
                         exchange,
@@ -49,7 +49,7 @@ public class GetNewsData extends HandlerBase {
                                 id,
                                 title,
                                 body,
-                                Timestamp.valueOf(LocalDateTime.now()),
+                                date,
                                 Base64.getEncoder().encodeToString(prev)
                         )
                 );

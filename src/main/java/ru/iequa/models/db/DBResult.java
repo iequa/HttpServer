@@ -31,6 +31,7 @@ public class DBResult {
                         switch (col.type) {
                             case INT, SERIAL -> values.put(col.name, data.getInt(col.name));
                             case DATE -> values.put(col.name, data.getDate(col.name));
+                            case TIMESTAMP -> values.put(col.name, data.getTimestamp(col.name));
                             case BINARY -> values.put(col.name, data.getBytes(col.name));
                             case VARCHAR -> values.put(col.name, data.getString(col.name));
                         }

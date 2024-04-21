@@ -11,6 +11,7 @@ import ru.iequa.utils.ResponseCreator;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
 
@@ -40,10 +41,12 @@ public class GetNewsHandler extends HandlerBase {
         if (!rows.isEmpty()) {
             rows.forEach(row -> {
                 final int id = (int) row.getElement("id");
-                final String st = (String) row.getElement("shorttitle");
+                final String title = (String) row.getElement("shorttitle");
+                final String shortBody = (String) row.getElement("shortbody");
                 final byte[] prev = (byte[]) row.getElement("img");
+                final Timestamp date = (Timestamp) row.getElement("date");
                 responseList.add(
-                        new NewsPreview(id, st, Base64.getEncoder().encodeToString(prev))
+                        new NewsPreview(id, title, shortBody, Base64.getEncoder().encodeToString(prev), date)
                 );
             });
         }
