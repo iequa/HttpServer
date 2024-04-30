@@ -1,4 +1,4 @@
-package ru.iequa.contracts;
+package ru.iequa.contracts.request;
 
 import java.util.UUID;
 

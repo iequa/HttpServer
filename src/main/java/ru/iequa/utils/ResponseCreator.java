@@ -7,6 +7,7 @@ import ru.iequa.contracts.response.base.ResponseBase;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.List;
 
 public class ResponseCreator {
 
@@ -28,27 +29,37 @@ public class ResponseCreator {
     }
 
     public void sendEmptyOkResponse(HttpExchange exchange) throws IOException {
-        var resp = new BaseResponse(null, 200);
+        final var resp = new BaseResponse(null, 200);
+        this.sendResponseWithBody(exchange, resp);
+    }
+
+    public void sendOkResponseWithMessage(HttpExchange exchange, String message) throws IOException {
+        final var resp = new BaseResponse(null, message, 200);
         this.sendResponseWithBody(exchange, resp);
     }
 
     public void sendNotFoundResponse(HttpExchange exchange) throws IOException {
-        var resp = new BaseResponse("Not found =(", 404);
+        final var resp = new BaseResponse("Not found =(", 404);
         this.sendResponseWithBody(exchange, resp);
     }
 
     public void sendResponseWithCode(HttpExchange exchange, int code, String errorMessage) throws IOException {
-        var resp = new BaseResponse(errorMessage, code);
+        final var resp = new BaseResponse(errorMessage, code);
         this.sendResponseWithBody(exchange, resp);
     }
 
     public void sendNotFoundResponse(HttpExchange exchange, String errorMessage) throws IOException {
-        var resp = new BaseResponse(errorMessage, 404);
+        final var resp = new BaseResponse(errorMessage, 404);
         this.sendResponseWithBody(exchange, resp);
     }
 
     public void sendOkResponseWithBody(HttpExchange exchange, ResponseBase resp) throws IOException {
         this.sendResponseWithBody(exchange, resp);
+    }
+
+    public void sendCorsPreflightResponse(HttpExchange exchange, List<String> methods) throws IOException {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", String.join(",", methods));
+        this.sendEmptyOkResponse(exchange);
     }
 
 }

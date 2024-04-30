@@ -17,12 +17,19 @@ public class HandlerResolver extends HandlerBase {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         System.out.println(exchange.getRequestMethod() + " request from \""
-                + exchange.getRemoteAddress().getHostName()
-                + "\", address: \""
+                + " address: \""
                 + exchange.getRemoteAddress().getAddress()
-                + "\"");
+                + "\" " +
+                exchange.getRequestURI());
         var method = exchange.getRequestMethod();
         var path = exchange.getRequestURI().getPath();
+        if (method.equals("OPTIONS")) {
+            var handlersMethods = handlers.stream()
+                    .filter(h -> ("/" + h.getPath()).equals(path))
+                    .map(HandlerBase::getMethod)
+                    .toList();
+            new ResponseCreator().sendCorsPreflightResponse(exchange, handlersMethods);
+        }
         try {
             var handler = handlers.stream()
                     .filter(h -> ("/" + h.getPath()).equals(path))

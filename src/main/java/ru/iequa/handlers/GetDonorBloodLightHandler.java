@@ -1,7 +1,7 @@
 package ru.iequa.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import ru.iequa.contracts.Request;
+import ru.iequa.contracts.request.Request;
 import ru.iequa.contracts.response.BloodTrafficLightResponse;
 import ru.iequa.models.blooddata.BloodData;
 import ru.iequa.models.blooddata.RHData;

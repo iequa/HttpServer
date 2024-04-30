@@ -13,7 +13,9 @@ public class Main {
             var handlers = new HashSet<HandlerBase>();
             handlers.add(new GetNewsHandler());
             handlers.add(new GetDonorBloodLightHandler());
-            handlers.add(new GetNewsData());
+            handlers.add(new GetNewsDataHandler());
+            handlers.add(new GetCalendarDataHandler());
+            handlers.add(new SetCalendarDatetimeHandler());
 
             var handlerResolver = new HandlerResolver(handlers);
             server.createContext("/", handlerResolver);

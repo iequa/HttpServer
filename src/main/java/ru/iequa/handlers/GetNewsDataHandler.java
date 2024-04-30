@@ -1,7 +1,7 @@
 package ru.iequa.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
-import ru.iequa.contracts.Request;
+import ru.iequa.contracts.request.Request;
 import ru.iequa.contracts.response.NewsDataResponse;
 import ru.iequa.database.DB;
 import ru.iequa.models.db.DBResult;
@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Base64;
 
-public class GetNewsData extends HandlerBase {
+public class GetNewsDataHandler extends HandlerBase {
 
     public static final String PATH = "get-news-data";
 
