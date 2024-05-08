@@ -6,14 +6,16 @@ import java.util.List;
 
 public class CalendarDatesResponse extends BaseResponse {
     public final List<String> dates;
+    public final String type;
 
-    public CalendarDatesResponse(String errorMessage, int code, List<String> dates) {
+    public CalendarDatesResponse(String errorMessage, int code, List<String> dates, String type) {
         super(errorMessage, code);
         this.dates = dates;
+        this.type = type;
     }
 
-    public CalendarDatesResponse(List<String> dates) {
-        this(null, 200, dates);
+    public CalendarDatesResponse(List<String> dates, String type) {
+        this(null, 200, dates, type);
     }
 }
 

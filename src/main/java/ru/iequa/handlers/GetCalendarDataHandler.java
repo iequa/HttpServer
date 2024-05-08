@@ -34,6 +34,11 @@ public class GetCalendarDataHandler extends HandlerBase {
     }
 
     @Override
+    public boolean needsAuth() {
+        return false;
+    }
+
+    @Override
     public void handle(HttpExchange exchange) throws IOException {
         final String json = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         final CalendarDataRequest request = JsonWorker.getInstance().deserialize(json, CalendarDataRequest.class);
@@ -51,20 +56,17 @@ public class GetCalendarDataHandler extends HandlerBase {
         ));
         DBResult res = DB.getInstance().ExecQuery("select us.provision_date from public.user_services us where date(us.provision_date) in (" + String.join(",", selectionDates) + ")");
         final var rows = res.getRows();
-        if (!rows.isEmpty()) {
-            final var dates = new ArrayList<String>();
-            for (Row row : rows) {
-                final Timestamp date = Timestamp.valueOf(row.getElement("provision_date").toString());
-                dates.add(date.toString());
-            }
-            new ResponseCreator().sendResponseWithBody(
-                    exchange,
-                    new CalendarDatesResponse(
-                            dates
-                    )
-            );
-            return;
+        final var dates = new ArrayList<String>();
+        for (Row row : rows) {
+            final Timestamp date = Timestamp.valueOf(row.getElement("provision_date").toString());
+            dates.add(date.toString());
         }
-        new ResponseCreator().sendResponseWithCode(exchange, 400, "Записей нет!");
+        new ResponseCreator().sendResponseWithBody(
+                exchange,
+                new CalendarDatesResponse(
+                        dates,
+                        "donation"
+                )
+        );
     }
 }

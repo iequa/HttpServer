@@ -4,10 +4,12 @@ package ru.iequa.utils;
 import com.sun.net.httpserver.HttpExchange;
 import ru.iequa.contracts.response.base.BaseResponse;
 import ru.iequa.contracts.response.base.ResponseBase;
+import ru.iequa.httpserver.ClientsStorage;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
+import java.util.UUID;
 
 public class ResponseCreator {
 
@@ -19,7 +21,13 @@ public class ResponseCreator {
     public void sendResponseWithBody(HttpExchange exchange, ResponseBase response) throws IOException {
         String body = JsonWorker.getInstance().serialize(response);
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Token");
+        exchange.getResponseHeaders().set("Access-Control-Expose-Headers", "Authorization");
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=" + ENCODING);
+        final var tokenObj = exchange.getRequestHeaders().get("Token");
+        if (tokenObj != null && ClientsStorage.isClientUUIDExists(UUID.fromString(tokenObj.get(0)))) {
+            exchange.getResponseHeaders().set("Token", tokenObj.get(0).toString());
+        }
         exchange.sendResponseHeaders(response.getCode(), body.getBytes(ENCODING).length);
         exchange.setAttribute("body", body);
         //exchange.setAttribute("Content-Type", "text/plain");
@@ -40,6 +48,11 @@ public class ResponseCreator {
 
     public void sendNotFoundResponse(HttpExchange exchange) throws IOException {
         final var resp = new BaseResponse("Not found =(", 404);
+        this.sendResponseWithBody(exchange, resp);
+    }
+
+    public void sendResponseWithError(HttpExchange exchange, Exception ex) throws IOException {
+        final var resp = new BaseResponse(ex.getMessage(), 400);
         this.sendResponseWithBody(exchange, resp);
     }
 

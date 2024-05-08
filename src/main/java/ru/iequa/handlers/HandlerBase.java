@@ -11,6 +11,8 @@ public abstract class HandlerBase implements HttpHandler {
 
     public abstract String getMethod();
 
+    public abstract boolean needsAuth();
+
     @Override
     public abstract void handle(HttpExchange exchange) throws IOException;
 }

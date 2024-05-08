@@ -3,6 +3,7 @@ package ru.iequa.database;
 
 import ru.iequa.models.db.DBResult;
 
+import java.io.IOException;
 import java.sql.*;
 
 public class DB {
@@ -44,7 +45,7 @@ public class DB {
             DriverManager.setLoginTimeout(10000);
             return true;
         } catch (Exception ex) {
-            System.out.println("Connection failed...");
+            System.out.println("Error...");
             System.out.println(ex.getMessage());
             connected = false;
             return (false);
@@ -53,13 +54,37 @@ public class DB {
 
     public DBResult ExecQuery(String sql) {
         try {
-            ResultSet rawRes = stat.executeQuery(sql);
+            final ResultSet rawRes = stat.executeQuery(sql);
             return new DBResult(rawRes);
         } catch (Exception ex) {
-            System.out.println("Connection failed...");
+            System.out.println("Error...");
             System.out.println(ex.getMessage());
             connected = false;
             return null;
+        }
+    }
+
+    public int ExecInsert(String sql) throws IOException {
+        try {
+            return stat.executeUpdate(sql);
+        } catch (Exception ex) {
+            System.out.println("Error...");
+            System.out.println(ex.getMessage());
+            connected = false;
+            throw new IOException(ex.getMessage());
+        }
+    }
+
+    public int ExecNonQuery(String sql) {
+        try {
+            var res = stat.executeQuery(sql);
+            res.next();
+            return res.getInt(1);
+        } catch (Exception ex) {
+            System.out.println("Error...");
+            System.out.println(ex.getMessage());
+            connected = false;
+            return 0;
         }
     }
 

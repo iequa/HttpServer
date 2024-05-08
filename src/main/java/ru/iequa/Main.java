@@ -5,6 +5,9 @@ import ru.iequa.httpserver.Server;
 
 import java.net.InetSocketAddress;
 import java.util.HashSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
@@ -16,15 +19,14 @@ public class Main {
             handlers.add(new GetNewsDataHandler());
             handlers.add(new GetCalendarDataHandler());
             handlers.add(new SetCalendarDatetimeHandler());
-
+            handlers.add(new LoginHandler());
             var handlerResolver = new HandlerResolver(handlers);
             server.createContext("/", handlerResolver);
-            server.setExecutor(null);
+            ExecutorService executor = Executors.newFixedThreadPool(5);
+            server.setExecutor(executor);
             server.start();
             System.out.println("Server started and working");
-            while (true) {
-                Thread.sleep(100);
-            }
+            executor.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         } finally {

@@ -1,15 +1,17 @@
 package ru.iequa.httpserver;
 
-import java.util.HashSet;
-import java.util.UUID;
+import java.time.LocalDateTime;
 
 public class ClientInfo {
-    public UUID uuid;
+    public String id;
     public String ip;
-    public final HashSet<DataMessageInfo> dataMessageInfos;
+    public final LocalDateTime expireDate;
+    public boolean isAdmin;
 
-    public ClientInfo(UUID uuid, HashSet<DataMessageInfo> dataMessageInfos) {
-        this.uuid = uuid;
-        this.dataMessageInfos = dataMessageInfos;
+    public ClientInfo(String id, String ip, LocalDateTime expireDate, boolean isAdmin) {
+        this.id = id;
+        this.expireDate = expireDate;
+        this.ip = ip;
+        this.isAdmin = isAdmin;
     }
 }

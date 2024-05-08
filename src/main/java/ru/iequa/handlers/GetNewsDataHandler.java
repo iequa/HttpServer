@@ -31,6 +31,11 @@ public class GetNewsDataHandler extends HandlerBase {
     }
 
     @Override
+    public boolean needsAuth() {
+        return false;
+    }
+
+    @Override
     public void handle(HttpExchange exchange) throws IOException {
         String json = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         Request request = JsonWorker.getInstance().deserialize(json, Request.class);
