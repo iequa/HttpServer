@@ -34,6 +34,7 @@ public class DBResult {
                             case TIMESTAMP -> values.put(col.name, data.getTimestamp(col.name));
                             case BINARY -> values.put(col.name, data.getBytes(col.name));
                             case VARCHAR -> values.put(col.name, data.getString(col.name));
+                            case BOOL -> values.put(col.name, data.getBoolean(col.name));
                         }
                     } catch (SQLException e) {
                         values.put(col.name, null);

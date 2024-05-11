@@ -8,7 +8,8 @@ public enum SQLTypes {
     SERIAL("int4"),
     DATE("date"),
     TIMESTAMP("timestamp"),
-    BINARY("bytea");
+    BINARY("bytea"),
+    BOOL("bool");
 
     private final String value;
 
@@ -24,10 +25,13 @@ public enum SQLTypes {
         if (name.equals(INT.value)) {
             return INT;
         }
+        if (name.equals(VARCHAR.value)) {
+            return VARCHAR;
+        }
         if (name.equals(DATE.value)) {
             return DATE;
         }
-        if (name.equals(VARCHAR.value)) {
+        if (name.equals(BOOL.value)) {
             return VARCHAR;
         }
         if (name.equals(BINARY.value)) {

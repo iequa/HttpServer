@@ -19,7 +19,7 @@ public class GetUserDataHandler extends HandlerBase {
 
     public static final String PATH = "get-user-data";
 
-    public static final String METHOD = "POST";
+    public static final String METHOD = "GET";
 
     @Override
     public String getPath() {
@@ -44,7 +44,7 @@ public class GetUserDataHandler extends HandlerBase {
         if (token != null && ClientsStorage.isClientUUIDExists(UUID.fromString(token.get(0)))) {
 
             final var sql = """
-                    select distinct u.id, u.login, u.is_admin, ud.name, ud.surname, ud.gender s.name, s.type, s.cost, us.provision_date
+                    select distinct u.id, u.login, u.is_admin, ud.name, ud.surname, ud.gender, s.name sname, s.type, s.cost, us.provision_date
                     from
                         public.users u
                         right join public.user_data ud on ud.id = u.id
@@ -67,7 +67,8 @@ public class GetUserDataHandler extends HandlerBase {
                     final String sname = (String) row.getElement("sname");
                     final String type = (String) row.getElement("type");
                     final String cost = row.getElement("cost") == null ? null : (String) row.getElement("cost");
-                    infoList.add(new ServiceInfo(sname, type, cost));
+                    final String provision_date = row.getElement("provision_date").toString();
+                    infoList.add(new ServiceInfo(sname, type, cost, provision_date.substring(0, provision_date.length() - 2)));
                 }
                 final var resp = new UserDataResponse(login, surname, name, gender, infoList);
                 new ResponseCreator().sendResponseWithBody(exchange, resp);

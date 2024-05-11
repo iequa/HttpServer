@@ -6,6 +6,7 @@ import ru.iequa.httpserver.ClientsStorage;
 import ru.iequa.utils.ResponseCreator;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class HandlerResolver extends HandlerBase {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        System.out.println(exchange.getRequestMethod() + " request from address: \""
+        System.out.println(LocalDateTime.now() + ": " + exchange.getRequestMethod() + " request from address: \""
                 + exchange.getRemoteAddress().getAddress()
                 + "\" " +
                 exchange.getRequestURI());

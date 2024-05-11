@@ -20,6 +20,7 @@ public class Main {
             handlers.add(new GetCalendarDataHandler());
             handlers.add(new SetCalendarDatetimeHandler());
             handlers.add(new LoginHandler());
+            handlers.add(new GetUserDataHandler());
             var handlerResolver = new HandlerResolver(handlers);
             server.createContext("/", handlerResolver);
             ExecutorService executor = Executors.newFixedThreadPool(5);
