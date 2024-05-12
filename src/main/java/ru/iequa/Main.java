@@ -21,6 +21,7 @@ public class Main {
             handlers.add(new SetCalendarDatetimeHandler());
             handlers.add(new LoginHandler());
             handlers.add(new GetUserDataHandler());
+            handlers.add(new LogoutHandler());
             var handlerResolver = new HandlerResolver(handlers);
             server.createContext("/", handlerResolver);
             ExecutorService executor = Executors.newFixedThreadPool(5);

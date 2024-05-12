@@ -32,7 +32,7 @@ public class ClientsStorage {
         return clients.values().stream().anyMatch(val -> val.id.equals(id));
     }
 
-    public static String getClientIp(String id) {
+    public static String getClientIp(UUID id) {
         return clients.get(id).ip;
     }
 
@@ -43,5 +43,9 @@ public class ClientsStorage {
     public static void addClient(String id, UUID uuid, String ip, LocalDateTime ldt, boolean isAdmin) {
         var clientInfo = new ClientInfo(id, ip, ldt, isAdmin);
         clients.put(uuid, clientInfo);
+    }
+
+    public static void deleteClient(UUID uuid) {
+        clients.remove(uuid);
     }
 }
