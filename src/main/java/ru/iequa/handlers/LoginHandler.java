@@ -5,6 +5,7 @@ import ru.iequa.contracts.request.LoginRequest;
 import ru.iequa.contracts.response.LoginResponse;
 import ru.iequa.database.DB;
 import ru.iequa.httpserver.ClientsStorage;
+import ru.iequa.models.db.DBResult;
 import ru.iequa.utils.JsonWorker;
 import ru.iequa.utils.ResponseCreator;
 
@@ -67,7 +68,12 @@ public class LoginHandler extends HandlerBase {
                     typeOfUser == 1
             );
             exchange.getResponseHeaders().set("Token", token.toString());
-            new ResponseCreator().sendResponseWithBody(exchange, new LoginResponse(null, 200, token.toString(), name, gender));
+            DBResult availableDate = DB.getInstance().ExecQuery("select ud.next_donation_date from public.user_data ud where id = " + ClientsStorage.getClientId(token));
+            final String ad = availableDate.getRowByIndex(0).getElement("next_donation_date") != null ?
+                    availableDate.getRowByIndex(0).getElement("next_donation_date").toString()
+                    :
+                    null;
+            new ResponseCreator().sendResponseWithBody(exchange, new LoginResponse(null, "Успешная авторизация", 200, token.toString(), name, gender, ad));
             return;
         }
         new ResponseCreator().sendNotFoundResponse(exchange, "Пользователь не найден");

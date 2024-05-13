@@ -33,32 +33,25 @@ public class HandlerResolver extends HandlerBase {
                     .toList();
             new ResponseCreator().sendCorsPreflightResponse(exchange, handlersMethods);
         }
-        try {
-            var handler = handlers.stream()
-                    .filter(h -> ("/" + h.getPath()).equals(path))
-                    .filter(h -> h.getMethod().equals(method))
-                    .findFirst();
-            if (handler.isPresent()) {
-                if (handler.get().needsAuth() && !checkAuth(handler.get().needsAuth(), exchange.getRequestHeaders())) {
-                    throw new SecurityException("Срок сессии истёк, требуется перезайти");
-                }
-                try {
-                    handler.get().handle(exchange);
-                } catch (Exception ex) {
-                    new ResponseCreator().sendResponseWithError(exchange, ex);
-                }
-            } else {
-                throw new ClassNotFoundException("Обработчик не найден");
+        var handler = handlers.stream()
+                .filter(h -> ("/" + h.getPath()).equals(path))
+                .filter(h -> h.getMethod().equals(method))
+                .findFirst();
+        if (handler.isPresent()) {
+            if (handler.get().needsAuth() && !checkAuth(handler.get().needsAuth(), exchange.getRequestHeaders())) {
+                new ResponseCreator().sendNotAuthorizedResponse(exchange, "Вы не авторизированы либо срок сессии истёк, требуется повторная авторизация");
+                return;
             }
-        } catch (Exception ex) {
-            new ResponseCreator().sendNotFoundResponse(exchange, ex.getMessage());
+            handler.get().handle(exchange);
+        } else {
+            throw new IOException("Обработчик не найден");
         }
     }
 
     private boolean checkAuth(boolean authNeeded, Headers requestHeaders) {
         final var token = requestHeaders.get("Token");
         if (token != null && authNeeded) {
-            return ClientsStorage.isClientUUIDExists(UUID.fromString(token.get(0).toString()));
+            return ClientsStorage.isClientUUIDExists(UUID.fromString(token.get(0)));
         }
         return false;
     }

@@ -52,4 +52,8 @@ public class DBResult {
     public HashSet<Row> getRows() {
         return new HashSet<>(rows);
     }
+
+    public Row getRowByIndex(int index) {
+        return rows.stream().toList().get(index);
+    }
 }

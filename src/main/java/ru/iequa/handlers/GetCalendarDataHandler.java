@@ -35,7 +35,7 @@ public class GetCalendarDataHandler extends HandlerBase {
 
     @Override
     public boolean needsAuth() {
-        return false;
+        return true;
     }
 
     @Override
@@ -61,6 +61,7 @@ public class GetCalendarDataHandler extends HandlerBase {
             final Timestamp date = Timestamp.valueOf(row.getElement("provision_date").toString());
             dates.add(date.toString());
         }
+
         new ResponseCreator().sendResponseWithBody(
                 exchange,
                 new CalendarDatesResponse(

@@ -55,12 +55,37 @@ public class SetCalendarDatetimeHandler extends HandlerBase {
                     .replace(":first", ClientsStorage.getClientId(UUID.fromString(token.get(0))))
                     .replace(":second", "1")
                     .replace(":third", Timestamp.valueOf(ldt).toString());
-            final var res = DB.getInstance().ExecInsert(sql);
+            final var res = DB.getInstance().ExecInsertOrUpdate(sql);
             if (res == 1) {
+                if (sdt.donationType != null) {
+                    final var nextDonationDate = calcNextDonationDate(sdt.donationType, ldt);
+                    //НУЖНО ПО ТИПУ ДОНАЦИИ ОПРЕДЕЛЯТЬ ДАТУ ОТКАТА
+                    final var sqlToUser = "update public.user_data ud set next_donation_date = ':ts' where ud.user_id = :id"
+                            .replace(":id", ClientsStorage.getClientId(UUID.fromString(token.get(0))))
+                            .replace(":ts", nextDonationDate.toString());
+                    if (DB.getInstance().ExecInsertOrUpdate(sqlToUser) == 1) {
+                        new ResponseCreator().sendOkResponseWithMessage(exchange, "Запись успешна!");
+                        return;
+                    } else {
+                        throw new IOException("Ошибка записи");
+                    }
+                }
                 new ResponseCreator().sendOkResponseWithMessage(exchange, "Запись успешна!");
                 return;
             }
         }
-        new ResponseCreator().sendOkResponseWithMessage(exchange, "it worked");
+        new ResponseCreator().sendNotAuthorizedResponse(exchange, "Ошибка. Попробуйте авторизироваться повторно");
+    }
+
+    private Timestamp calcNextDonationDate(String donationType, LocalDateTime recordTime) throws IOException {
+        switch (donationType) {
+            case "0", "1", "2", "3", "4" -> { //Цельная кровь
+                return Timestamp.valueOf(recordTime.plusMonths(2).withHour(0).withMinute(0));
+            }
+            case "5" -> { //Плазма
+                return Timestamp.valueOf(recordTime.plusWeeks(2).withHour(0).withMinute(0));
+            }
+            default -> throw new IOException("Неверный тип услуги");
+        }
     }
 }

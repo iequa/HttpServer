@@ -14,7 +14,6 @@ public class DB {
     //private final static String CONN_URL = "jdbc:sqlanywhere:kursbd";
     private final static String CONN_URL = "jdbc:postgresql://localhost:5432/vkr";
 
-    public Statement stat;
     private static DatabaseMetaData meta;
     private static Connection con;
 
@@ -39,7 +38,6 @@ public class DB {
         try {
             con = DriverManager.getConnection(CONN_URL, CONN_LOGIN, CONN_PASS);
             meta = con.getMetaData();
-            stat = con.createStatement();
             System.out.println("DB connected.");
             connected = true;
             DriverManager.setLoginTimeout(10000);
@@ -54,7 +52,7 @@ public class DB {
 
     public DBResult ExecQuery(String sql) {
         try {
-            final ResultSet rawRes = stat.executeQuery(sql);
+            final ResultSet rawRes = con.prepareStatement(sql).executeQuery();
             return new DBResult(rawRes);
         } catch (Exception ex) {
             System.out.println("Error...");
@@ -64,9 +62,9 @@ public class DB {
         }
     }
 
-    public int ExecInsert(String sql) throws IOException {
+    public int ExecInsertOrUpdate(String sql) throws IOException {
         try {
-            return stat.executeUpdate(sql);
+            return con.prepareStatement(sql).executeUpdate();
         } catch (Exception ex) {
             System.out.println("Error...");
             System.out.println(ex.getMessage());
@@ -77,7 +75,7 @@ public class DB {
 
     public int ExecNonQuery(String sql) {
         try {
-            var res = stat.executeQuery(sql);
+            var res = con.prepareStatement(sql).executeQuery();
             res.next();
             return res.getInt(1);
         } catch (Exception ex) {
@@ -94,7 +92,6 @@ public class DB {
                 return true;
             }
             connected = false;
-            stat.close();
             con.close();
             System.out.println("Database disconnected");
             return true;

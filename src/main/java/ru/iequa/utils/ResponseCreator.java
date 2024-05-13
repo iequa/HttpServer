@@ -66,6 +66,11 @@ public class ResponseCreator {
         this.sendResponseWithBody(exchange, resp);
     }
 
+    public void sendNotAuthorizedResponse(HttpExchange exchange, String errorMessage) throws IOException {
+        final var resp = new BaseResponse(errorMessage, 401);
+        this.sendResponseWithBody(exchange, resp);
+    }
+
     public void sendOkResponseWithBody(HttpExchange exchange, ResponseBase resp) throws IOException {
         this.sendResponseWithBody(exchange, resp);
     }

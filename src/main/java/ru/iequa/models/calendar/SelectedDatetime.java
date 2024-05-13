@@ -6,12 +6,14 @@ public class SelectedDatetime {
     public final String year;
     public final String fullDate;
     public final String time;
+    public final String donationType;
 
-    public SelectedDatetime(String day, String month, String year, String fullDate, String time) {
+    public SelectedDatetime(String day, String month, String year, String fullDate, String time, String donationType) {
         this.day = day;
         this.month = month;
         this.year = year;
         this.fullDate = fullDate;
         this.time = time;
+        this.donationType = donationType;
     }
 }
