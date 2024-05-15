@@ -5,7 +5,8 @@ import ru.iequa.contracts.request.Request;
 import ru.iequa.contracts.response.NewsPreviewsResponse;
 import ru.iequa.database.DB;
 import ru.iequa.models.db.DBResult;
-import ru.iequa.models.news.NewsPreview;
+import ru.iequa.models.db.Row;
+import ru.iequa.models.news.NewsPreviewData;
 import ru.iequa.utils.JsonWorker;
 import ru.iequa.utils.ResponseCreator;
 
@@ -40,33 +41,26 @@ public class GetNewsHandler extends HandlerBase {
     public void handle(HttpExchange exchange) throws IOException {
         String json = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         Request request = JsonWorker.getInstance().deserialize(json, Request.class);
-        DBResult res = DB.getInstance().ExecQuery("select * from news");
+        final var offset = request.page != -1 ? request.page * 10 : 0;
+        final int countOfPages = (int) Math.ceil(DB.getInstance().ExecNonQuery("select count(*) from news") / 10.0);
+        DBResult res = DB.getInstance().ExecQuery("select * from news order by news.date ASC offset " + offset);
         final var rows = res.getRows();
-        final var responseList = new ArrayList<NewsPreview>();
+        final var responseList = new ArrayList<NewsPreviewData>();
         if (!rows.isEmpty()) {
-            rows.forEach(row -> {
+            for (Row row : rows) {
                 final int id = (int) row.getElement("id");
                 final String title = (String) row.getElement("shorttitle");
                 final String shortBody = (String) row.getElement("shortbody");
                 final byte[] prev = (byte[]) row.getElement("img");
                 final Timestamp date = (Timestamp) row.getElement("date");
                 responseList.add(
-                        new NewsPreview(id, title, shortBody, Base64.getEncoder().encodeToString(prev), date)
+                        new NewsPreviewData(id, title, shortBody, prev != null ? Base64.getEncoder().encodeToString(prev) : null, date)
                 );
-            });
+                if (request.page == -1 && responseList.size() == 3) {
+                    break;
+                }
+            }
         }
-        new ResponseCreator().sendResponseWithBody(exchange, new NewsPreviewsResponse(responseList));
-//        if (ClientsStorage.isClientIdExists(request.id)) {
-//            if (request.clientId != null && ClientsStorage.isClientExists(request.id, request.clientId)) {
-//                new ResponseCreator().sendNotFoundResponse(exchange, "Данный пользователь уже существует");
-//            } else {
-//                UUID uuid = UUID.randomUUID();
-//                var ip = exchange.getRemoteAddress().getAddress().getHostAddress();
-//                ClientsStorage.addClientUUID(request.id, uuid, ip);
-//                new ResponseCreator().sendResponseWithBody(exchange, new BaseResponse(uuid.toString(), 200));
-//            }
-//        } else {
-//            new ResponseCreator().sendNotFoundResponse(exchange, "Пользователь не найден");
-//        }
+        new ResponseCreator().sendResponseWithBody(exchange, new NewsPreviewsResponse(responseList, request.page, countOfPages));
     }
 }

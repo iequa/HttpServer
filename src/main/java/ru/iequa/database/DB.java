@@ -2,9 +2,12 @@ package ru.iequa.database;
 
 
 import ru.iequa.models.db.DBResult;
+import ru.iequa.models.db.SqlParams;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.*;
+import java.util.List;
 
 public class DB {
     private static DB instance;
@@ -62,6 +65,18 @@ public class DB {
         }
     }
 
+    public int ExecQueryWithParams(String sql, List<SqlParams> params) {
+        try {
+            final var stat = fillStatementWithParams(con.prepareStatement(sql), params);
+            return stat.executeUpdate();
+        } catch (Exception ex) {
+            System.out.println("Error...");
+            System.out.println(ex.getMessage());
+            connected = false;
+            return -1;
+        }
+    }
+
     public int ExecInsertOrUpdate(String sql) throws IOException {
         try {
             return con.prepareStatement(sql).executeUpdate();
@@ -83,6 +98,31 @@ public class DB {
             System.out.println(ex.getMessage());
             connected = false;
             return 0;
+        }
+    }
+
+    private PreparedStatement fillStatementWithParams(PreparedStatement stat, List<SqlParams> params) throws IOException {
+        try {
+            for (SqlParams parameter : params) {
+                switch (parameter.type) {
+                    case INT -> stat.setInt(parameter.index, (int) parameter.object);
+                    case VARCHAR -> stat.setString(parameter.index, (String) parameter.object);
+                    case DATE -> stat.setDate(parameter.index, (Date) parameter.object);
+                    case TIMESTAMP -> stat.setTimestamp(parameter.index, (Timestamp) parameter.object);
+                    case BINARY -> {
+                        if (parameter.object != null) {
+                            stat.setBinaryStream(parameter.index, new ByteArrayInputStream((byte[]) parameter.object));
+                        } else {
+                            stat.setNull(parameter.index, Types.BINARY);
+                        }
+                    }
+                    case BOOL -> stat.setBoolean(parameter.index, (boolean) parameter.object);
+                    default -> throw new SQLException("Неверный тип");
+                }
+            }
+            return stat;
+        } catch (SQLException ex) {
+            throw new IOException(ex.getLocalizedMessage());
         }
     }
 

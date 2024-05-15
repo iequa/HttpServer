@@ -20,8 +20,12 @@ public class ClientsStorage {
         return clients.containsValue(ci);
     }
 
-    public static boolean isClientExists(String id, UUID uuid) {
-        return isClientIdExists(id) && clients.containsKey(uuid);
+    public static boolean isClientExistsAndValid(UUID uuid, String ip) {
+        return clients.containsKey(uuid) && clients.get(uuid).ip.equals(ip);
+    }
+
+    public static boolean isClientHasAdminPermissions(UUID uuid) {
+        return clients.containsKey(uuid) && clients.get(uuid).specialFunctions;
     }
 
     public static boolean isClientUUIDExists(UUID uuid) {

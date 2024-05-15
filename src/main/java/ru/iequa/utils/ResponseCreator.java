@@ -26,7 +26,7 @@ public class ResponseCreator {
         exchange.getResponseHeaders().set("Content-Type", "application/json; charset=" + ENCODING);
         final var tokenObj = exchange.getRequestHeaders().get("Token");
         if (tokenObj != null && ClientsStorage.isClientUUIDExists(UUID.fromString(tokenObj.get(0)))) {
-            exchange.getResponseHeaders().set("Token", tokenObj.get(0).toString());
+            exchange.getResponseHeaders().set("Token", tokenObj.get(0));
         }
         exchange.sendResponseHeaders(response.getCode(), body.getBytes(ENCODING).length);
         exchange.setAttribute("body", body);
@@ -53,6 +53,11 @@ public class ResponseCreator {
 
     public void sendResponseWithError(HttpExchange exchange, Exception ex) throws IOException {
         final var resp = new BaseResponse(ex.getMessage(), 400);
+        this.sendResponseWithBody(exchange, resp);
+    }
+
+    public void sendResponseWithErrorMessage(HttpExchange exchange, String errorMessage) throws IOException {
+        final var resp = new BaseResponse(errorMessage, 400);
         this.sendResponseWithBody(exchange, resp);
     }
 

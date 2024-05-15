@@ -73,7 +73,18 @@ public class LoginHandler extends HandlerBase {
                     availableDate.getRowByIndex(0).getElement("next_donation_date").toString()
                     :
                     null;
-            new ResponseCreator().sendResponseWithBody(exchange, new LoginResponse(null, "Успешная авторизация", 200, token.toString(), name, gender, ad));
+            new ResponseCreator().sendResponseWithBody(
+                    exchange,
+                    new LoginResponse(null,
+                            "Успешная авторизация",
+                            200,
+                            token.toString(),
+                            name,
+                            gender,
+                            ad,
+                            ClientsStorage.isClientHasAdminPermissions(token)
+                    )
+            );
             return;
         }
         new ResponseCreator().sendNotFoundResponse(exchange, "Пользователь не найден");

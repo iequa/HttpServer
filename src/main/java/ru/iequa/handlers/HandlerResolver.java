@@ -26,32 +26,36 @@ public class HandlerResolver extends HandlerBase {
                 exchange.getRequestURI());
         final var method = exchange.getRequestMethod();
         final var path = exchange.getRequestURI().getPath();
-        if (method.equals("OPTIONS")) {
-            var handlersMethods = handlers.stream()
-                    .filter(h -> ("/" + h.getPath()).equals(path))
-                    .map(HandlerBase::getMethod)
-                    .toList();
-            new ResponseCreator().sendCorsPreflightResponse(exchange, handlersMethods);
-        }
-        var handler = handlers.stream()
-                .filter(h -> ("/" + h.getPath()).equals(path))
-                .filter(h -> h.getMethod().equals(method))
-                .findFirst();
-        if (handler.isPresent()) {
-            if (handler.get().needsAuth() && !checkAuth(handler.get().needsAuth(), exchange.getRequestHeaders())) {
-                new ResponseCreator().sendNotAuthorizedResponse(exchange, "Вы не авторизированы либо срок сессии истёк, требуется повторная авторизация");
-                return;
+        try {
+            if (method.equals("OPTIONS")) {
+                var handlersMethods = handlers.stream()
+                        .filter(h -> ("/" + h.getPath()).equals(path))
+                        .map(HandlerBase::getMethod)
+                        .toList();
+                new ResponseCreator().sendCorsPreflightResponse(exchange, handlersMethods);
             }
-            handler.get().handle(exchange);
-        } else {
-            throw new IOException("Обработчик не найден");
+            var handler = handlers.stream()
+                    .filter(h -> ("/" + h.getPath()).equals(path))
+                    .filter(h -> h.getMethod().equals(method))
+                    .findFirst();
+            if (handler.isPresent()) {
+                if (handler.get().needsAuth() && !checkAuth(handler.get().needsAuth(), exchange.getRequestHeaders(), exchange.getRemoteAddress().getAddress().toString())) {
+                    new ResponseCreator().sendNotAuthorizedResponse(exchange, "Вы не авторизированы либо срок сессии истёк, требуется повторная авторизация");
+                    return;
+                }
+                handler.get().handle(exchange);
+            } else {
+                throw new IOException("Обработчик не найден");
+            }
+        } catch (IOException ex) {
+            new ResponseCreator().sendResponseWithError(exchange, ex);
         }
     }
 
-    private boolean checkAuth(boolean authNeeded, Headers requestHeaders) {
+    private boolean checkAuth(boolean authNeeded, Headers requestHeaders, String ip) {
         final var token = requestHeaders.get("Token");
         if (token != null && authNeeded) {
-            return ClientsStorage.isClientUUIDExists(UUID.fromString(token.get(0)));
+            return ClientsStorage.isClientExistsAndValid(UUID.fromString(token.get(0)), ip);
         }
         return false;
     }

@@ -1,20 +1,24 @@
 package ru.iequa.contracts.response;
 
 import ru.iequa.contracts.response.base.BaseResponse;
-import ru.iequa.models.news.NewsPreview;
+import ru.iequa.models.news.NewsPreviewData;
 
 import java.util.List;
 
 public class NewsPreviewsResponse extends BaseResponse {
-    public final List<NewsPreview> newsPreviews;
+    public final List<NewsPreviewData> newsPreviewData;
+    public final int page;
+    public final int pagesCount;
 
-    public NewsPreviewsResponse(String errorMessage, int code, List<NewsPreview> newsPreviews) {
+    public NewsPreviewsResponse(String errorMessage, int code, List<NewsPreviewData> newsPreviewData, int page, int pagesCount) {
         super(errorMessage, code);
-        this.newsPreviews = newsPreviews;
+        this.newsPreviewData = newsPreviewData;
+        this.page = page;
+        this.pagesCount = pagesCount;
     }
 
-    public NewsPreviewsResponse(List<NewsPreview> newsPreviews) {
-        this(null, 200, newsPreviews);
+    public NewsPreviewsResponse(List<NewsPreviewData> newsPreviewData, int page, int pagesCount) {
+        this(null, 200, newsPreviewData, page, pagesCount);
     }
 }
 

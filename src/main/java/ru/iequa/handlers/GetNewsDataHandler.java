@@ -45,6 +45,8 @@ public class GetNewsDataHandler extends HandlerBase {
             for (Row row : rows) {
                 final int id = (int) row.getElement("id");
                 final String title = (String) row.getElement("title");
+                final String shortTitle = (String) row.getElement("shorttitle");
+                final String shortBody = (String) row.getElement("shortbody");
                 final String body = (String) row.getElement("body");
                 final Timestamp date = (Timestamp) row.getElement("date");
                 final byte[] prev = (byte[]) row.getElement("img");
@@ -55,7 +57,9 @@ public class GetNewsDataHandler extends HandlerBase {
                                 title,
                                 body,
                                 date,
-                                Base64.getEncoder().encodeToString(prev)
+                                prev != null ? Base64.getEncoder().encodeToString(prev) : null,
+                                shortTitle,
+                                shortBody
                         )
                 );
                 break;

@@ -5,6 +5,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class DBResult {
 
@@ -13,7 +14,7 @@ public class DBResult {
 
     public DBResult(ResultSet data) throws SQLException {
         columns = new HashSet<>();
-        rows = new HashSet<>();
+        rows = new LinkedHashSet<>();
         ResultSetMetaData rsmd = data.getMetaData();
         try {
             for (int i = 1; i <= rsmd.getColumnCount(); i++) {
@@ -49,8 +50,8 @@ public class DBResult {
         }
     }
 
-    public HashSet<Row> getRows() {
-        return new HashSet<>(rows);
+    public LinkedHashSet<Row> getRows() {
+        return new LinkedHashSet<>(rows);
     }
 
     public Row getRowByIndex(int index) {
