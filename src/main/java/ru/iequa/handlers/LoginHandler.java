@@ -49,16 +49,15 @@ public class LoginHandler extends HandlerBase {
         }
         final byte[] encodedHash = digest.digest(request.value.getBytes(StandardCharsets.UTF_8));
         var res = bytesToHex(encodedHash);
-        final var count = DB.getInstance().ExecQuery("select u.id from users u where u.login = ':l' and u.password = ':p'"
+        final var count = DB.getInstance().ExecQuery("select u.id from public.users u where u.login = ':l' and u.password = ':p'"
                 .replace(":l", request.login)
                 .replace(":p", res));
         if (!count.getRows().isEmpty()) {
             final var id = count.getRows().stream().map(row -> row.getElement("id")).findFirst().get();
-            final int typeOfUser = DB.getInstance().ExecNonQuery("select count (*) from users where id = " + id);
-            final var userData = DB.getInstance().ExecQuery("select name, gender from user_data where id = " + id);
+            final int typeOfUser = DB.getInstance().ExecNonQuery("select count (*) from public.users u where u.id = " + id + " and u.is_admin = true");
+            final var userData = DB.getInstance().ExecQuery("select ud.name from public.user_data ud where ud.user_id = " + id);
             final var row = userData.getRows().stream().toList().get(0);
             final var name = (String) row.getElement("name");
-            final var gender = (String) row.getElement("gender");
             final var token = UUID.randomUUID();
             ClientsStorage.addClient(
                     id.toString(),
@@ -68,7 +67,7 @@ public class LoginHandler extends HandlerBase {
                     typeOfUser == 1
             );
             exchange.getResponseHeaders().set("Token", token.toString());
-            DBResult availableDate = DB.getInstance().ExecQuery("select ud.next_donation_date from public.user_data ud where id = " + ClientsStorage.getClientId(token));
+            DBResult availableDate = DB.getInstance().ExecQuery("select ud.next_donation_date from public.user_data ud where ud.user_id = " + ClientsStorage.getClientId(token));
             final String ad = availableDate.getRowByIndex(0).getElement("next_donation_date") != null ?
                     availableDate.getRowByIndex(0).getElement("next_donation_date").toString()
                     :
@@ -80,7 +79,6 @@ public class LoginHandler extends HandlerBase {
                             200,
                             token.toString(),
                             name,
-                            gender,
                             ad,
                             ClientsStorage.isClientHasAdminPermissions(token)
                     )

@@ -23,6 +23,7 @@ public class Main {
             handlers.add(new GetUserDataHandler());
             handlers.add(new LogoutHandler());
             handlers.add(new SetNewsDataHandler());
+            handlers.add(new RegisterHandler());
             var handlerResolver = new HandlerResolver(handlers);
             server.createContext("/", handlerResolver);
             ExecutorService executor = Executors.newFixedThreadPool(5);
