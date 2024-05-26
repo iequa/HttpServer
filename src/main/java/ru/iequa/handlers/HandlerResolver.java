@@ -33,6 +33,7 @@ public class HandlerResolver extends HandlerBase {
                         .map(HandlerBase::getMethod)
                         .toList();
                 new ResponseCreator().sendCorsPreflightResponse(exchange, handlersMethods);
+                return;
             }
             var handler = handlers.stream()
                     .filter(h -> ("/" + h.getPath()).equals(path))

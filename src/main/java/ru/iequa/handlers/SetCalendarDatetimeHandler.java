@@ -2,6 +2,7 @@ package ru.iequa.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
 import ru.iequa.contracts.request.SetCalendarDatetimeRequest;
+import ru.iequa.contracts.response.NextDonationDateResponse;
 import ru.iequa.database.DB;
 import ru.iequa.httpserver.ClientsStorage;
 import ru.iequa.utils.JsonWorker;
@@ -64,13 +65,12 @@ public class SetCalendarDatetimeHandler extends HandlerBase {
                             .replace(":id", ClientsStorage.getClientId(UUID.fromString(token.get(0))))
                             .replace(":ts", nextDonationDate.toString());
                     if (DB.getInstance().ExecInsertOrUpdate(sqlToUser) == 1) {
-                        new ResponseCreator().sendOkResponseWithMessage(exchange, "Запись успешна!");
+                        new ResponseCreator().sendResponseWithBody(exchange, new NextDonationDateResponse("Запись успешна!", 200, nextDonationDate));
                         return;
                     } else {
                         throw new IOException("Ошибка записи");
                     }
                 }
-                new ResponseCreator().sendOkResponseWithMessage(exchange, "Запись успешна!");
                 return;
             }
         }

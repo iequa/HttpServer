@@ -4,16 +4,15 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 public class DBResult {
 
-    private final HashSet<Row> rows;
-    private final HashSet<Column> columns;
+    private final LinkedHashSet<Row> rows;
+    private final LinkedHashSet<Column> columns;
 
     public DBResult(ResultSet data) throws SQLException {
-        columns = new HashSet<>();
+        columns = new LinkedHashSet<>();
         rows = new LinkedHashSet<>();
         ResultSetMetaData rsmd = data.getMetaData();
         try {
@@ -52,6 +51,10 @@ public class DBResult {
 
     public LinkedHashSet<Row> getRows() {
         return new LinkedHashSet<>(rows);
+    }
+
+    public LinkedHashSet<Column> getColumns() {
+        return new LinkedHashSet<>(columns);
     }
 
     public Row getRowByIndex(int index) {
