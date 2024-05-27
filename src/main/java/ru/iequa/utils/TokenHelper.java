@@ -25,7 +25,7 @@ public class TokenHelper {
         )) {
             return UUID.fromString(tokenValue);
         }
-        return null;
+        throw new IOException("Вы не авторизированы либо срок сессии истёк, требуется повторная авторизация");
     }
 
     public static String checkAndGetValidUserTokenStr(HttpExchange exchange) throws IOException {

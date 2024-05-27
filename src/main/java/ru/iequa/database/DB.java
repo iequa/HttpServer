@@ -65,7 +65,19 @@ public class DB {
         }
     }
 
-    public int ExecQueryWithParams(String sql, List<SqlParams> params) {
+    public DBResult ExecQueryWithParamsWithReturn(String sql, List<SqlParams> params) {
+        try {
+            final ResultSet rawRes = fillStatementWithParams(con.prepareStatement(sql), params).executeQuery();
+            return new DBResult(rawRes);
+        } catch (Exception ex) {
+            System.out.println("Error...");
+            System.out.println(ex.getMessage());
+            connected = false;
+            return null;
+        }
+    }
+
+    public int ExecQueryWithParamsAndNoReturn(String sql, List<SqlParams> params) {
         try {
             final var stat = fillStatementWithParams(con.prepareStatement(sql), params);
             return stat.executeUpdate();

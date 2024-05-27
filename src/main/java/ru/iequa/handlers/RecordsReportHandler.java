@@ -78,7 +78,7 @@ public class RecordsReportHandler extends HandlerBase {
             if (res != null && res.getRows() != null) {
                 final var dbrows = res.getRows();
                 if ((long) dbrows.size() == 0) {
-                    new ResponseCreator().sendResponseWithErrorMessage(exchange, "Записей на указнный период не найдено.");
+                    new ResponseCreator().sendOkResponseWithMessage(exchange, "Записей на указнный период не найдено.");
                     return;
                 }
                 Workbook workbook = new XSSFWorkbook();
@@ -89,25 +89,23 @@ public class RecordsReportHandler extends HandlerBase {
                 prepareHeaderCells(workbook, sheet, res.getColumns());
                 fillCells(workbook, sheet, res.getRows(), res.getColumns());
 
-                File currDir = new File(".");
-                String path = currDir.getAbsolutePath();
+                File tempFile = File.createTempFile("rep", "xml");
                 final var cdt = LocalDateTime.now();
                 final String fileName = "отчёт с :frst по :second от :cdt.xlsx"
                         .replace(":frst", frst.toLocalDateTime().toLocalDate().toString())
                         .replace(":second", scd.toLocalDateTime().toLocalDate().toString())
                         .replace(":cdt", cdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss")));
-                String fileLocation = path.substring(0, path.length() - 1) + fileName;
-
-                FileOutputStream outputStream = new FileOutputStream(fileLocation);
+                FileOutputStream outputStream = new FileOutputStream(tempFile);
                 workbook.write(outputStream);
                 workbook.close();
                 outputStream.close();
-                final var resFile = new FileInputStream(fileLocation);
+                final var resFile = new FileInputStream(tempFile);
                 new ResponseCreator().sendResponseWithBody(exchange, new RecordsReportResponse(resFile.readAllBytes().clone(), fileName));
                 resFile.close();
+                tempFile.delete();
                 return;
             }
-            new ResponseCreator().sendResponseWithErrorMessage(exchange, "Ошибка формирования файла");
+            new ResponseCreator().sendOkResponseWithMessage(exchange, "Ошибка формирования файла");
             return;
         }
         new ResponseCreator().sendNotAuthorizedResponse(exchange, "Ошибка. Попробуйте авторизироваться повторно");
@@ -125,9 +123,9 @@ public class RecordsReportHandler extends HandlerBase {
         valueCellStyle.setFont(font);
         final var colList = columns.stream().toList();
         final var dbrowsList = dbrows.stream().toList();
-        for (int i = 1; i < dbrowsList.size(); i++) {// 1 Т.к. 0 уже занят хедером
+        for (int i = 0; i < dbrowsList.size(); i++) {
             final var currDbRow = dbrowsList.get(i);
-            Row currRow = sheet.createRow(i);
+            Row currRow = sheet.createRow(i + 1);// +1 Т.к. 0 уже занят хедером
             for (int j = 0; j < colList.size(); j++) {
                 final var currCol = colList.get(j);
                 Cell cell = currRow.createCell(j);
@@ -171,24 +169,11 @@ public class RecordsReportHandler extends HandlerBase {
         font.setFontHeightInPoints((short) 14);
         font.setBold(true);
         headerStyle.setFont(font);
-        int colCounter = 0;
         final var colList = columns.stream().toList();
         for (int i = 0; i < colList.size(); i++) {
             Cell headerCell = headerRow.createCell(i);
             headerCell.setCellValue(colList.get(i).name);
             headerCell.setCellStyle(headerStyle);
-        }
-    }
-
-    private Timestamp calcNextDonationDate(String donationType, LocalDateTime recordTime) throws IOException {
-        switch (donationType) {
-            case "0", "1", "2", "3", "4" -> { //Цельная кровь
-                return Timestamp.valueOf(recordTime.plusMonths(2).withHour(0).withMinute(0));
-            }
-            case "5" -> { //Плазма
-                return Timestamp.valueOf(recordTime.plusWeeks(2).withHour(0).withMinute(0));
-            }
-            default -> throw new IOException("Неверный тип услуги");
         }
     }
 }

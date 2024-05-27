@@ -13,6 +13,7 @@ import ru.iequa.utils.ResponseCreator;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Base64;
 
@@ -43,7 +44,9 @@ public class GetNewsHandler extends HandlerBase {
         Request request = JsonWorker.getInstance().deserialize(json, Request.class);
         final var offset = request.page != -1 ? request.page * 10 : 0;
         final int countOfPages = (int) Math.ceil(DB.getInstance().ExecNonQuery("select count(*) from news") / 10.0);
-        DBResult res = DB.getInstance().ExecQuery("select * from news order by news.date ASC offset " + offset);
+        final var ldt = LocalDate.now().plusDays(1);
+        final var wp = request.id == 0 ? "" : "where news.date < '" + ldt + "' ";
+        DBResult res = DB.getInstance().ExecQuery("select * from news " + wp + "order by news.date DESC offset " + offset);
         final var rows = res.getRows();
         final var responseList = new ArrayList<NewsPreviewData>();
         if (!rows.isEmpty()) {

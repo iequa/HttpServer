@@ -2,6 +2,7 @@ package ru.iequa.utils;
 
 
 import com.sun.net.httpserver.HttpExchange;
+import ru.iequa.contracts.response.RecordsReportResponse;
 import ru.iequa.contracts.response.base.BaseResponse;
 import ru.iequa.contracts.response.base.ResponseBase;
 import ru.iequa.httpserver.ClientsStorage;
@@ -23,7 +24,12 @@ public class ResponseCreator {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Token");
         exchange.getResponseHeaders().set("Access-Control-Expose-Headers", "Authorization");
-        exchange.getResponseHeaders().set("Content-Type", "application/json; charset=" + ENCODING);
+        if (response.getClass().equals(RecordsReportResponse.class)) {
+            exchange.getResponseHeaders().set("Content-Type", "application/octet-stream");
+            exchange.getResponseHeaders().set("Content-Disposition", "attachment; filename=\"myfile-1.xlsx\"");
+        } else {
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=" + ENCODING);
+        }
         final var tokenObj = exchange.getRequestHeaders().get("Token");
         if (tokenObj != null && ClientsStorage.isClientUUIDExists(UUID.fromString(tokenObj.get(0)))) {
             exchange.getResponseHeaders().set("Token", tokenObj.get(0));

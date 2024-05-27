@@ -73,23 +73,11 @@ public class SetNewsDataHandler extends HandlerBase {
         }
         params.add(new SqlParams(SQLTypes.TIMESTAMP, d.date, 6));
         params.add(new SqlParams(SQLTypes.INT, d.id, 7));
-        final var res = DB.getInstance().ExecQueryWithParams(sql, params);
+        final var res = DB.getInstance().ExecQueryWithParamsAndNoReturn(sql, params);
         if (res == 1) {
             new ResponseCreator().sendOkResponseWithMessage(exchange, "Новость успешно изменена!");
         } else {
             new ResponseCreator().sendResponseWithErrorMessage(exchange, "Ошибка. Новость не удалось изменить");
         }
-    }
-
-    private String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
     }
 }
