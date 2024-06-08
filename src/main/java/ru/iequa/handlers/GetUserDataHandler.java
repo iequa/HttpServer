@@ -52,7 +52,7 @@ public class GetUserDataHandler extends HandlerBase {
                         left join public.services s on s.id = us.service_id
                     where
                         u.id = :id
-                    order by us.provision_date
+                    order by us.provision_date desc
                     """
                     .replace(":id", ClientsStorage.getClientId(UUID.fromString(token.get(0))));
             final var res = DB.getInstance().ExecQuery(sql);
@@ -67,11 +67,12 @@ public class GetUserDataHandler extends HandlerBase {
                     if (row.getElement("provision_date") == null) {
                         continue;
                     }
+                    final int id = (int) row.getElement("id");
                     final String sname = (String) row.getElement("sname");
                     final String type = (String) row.getElement("type");
                     final String cost = row.getElement("cost") == null ? null : (String) row.getElement("cost");
                     final String provision_date = row.getElement("provision_date").toString();
-                    infoList.add(new ServiceInfo(sname, type, cost, provision_date.substring(0, provision_date.length() - 2)));
+                    infoList.add(new ServiceInfo(id, sname, type, cost, provision_date.substring(0, provision_date.length() - 2)));
                 }
                 final var resp = new UserDataResponse(login, surname, name, infoList);
                 new ResponseCreator().sendResponseWithBody(exchange, resp);

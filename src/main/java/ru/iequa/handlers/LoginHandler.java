@@ -5,6 +5,7 @@ import ru.iequa.contracts.request.LoginRequest;
 import ru.iequa.contracts.response.LoginResponse;
 import ru.iequa.database.DB;
 import ru.iequa.httpserver.ClientsStorage;
+import ru.iequa.models.IdDate;
 import ru.iequa.models.db.DBResult;
 import ru.iequa.utils.JsonWorker;
 import ru.iequa.utils.ResponseCreator;
@@ -13,7 +14,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class LoginHandler extends HandlerBase {
@@ -67,11 +70,16 @@ public class LoginHandler extends HandlerBase {
                     typeOfUser == 1
             );
             exchange.getResponseHeaders().set("Token", token.toString());
-            DBResult availableDate = DB.getInstance().ExecQuery("select ud.next_donation_date from public.user_data ud where ud.user_id = " + ClientsStorage.getClientId(token));
-            final String ad = availableDate.getRowByIndex(0).getElement("next_donation_date") != null ?
-                    availableDate.getRowByIndex(0).getElement("next_donation_date").toString()
-                    :
-                    null;
+            DBResult availableDates = DB.getInstance().ExecQuery("select us.service_id, us.next_provision_date from public.user_services us where us.user_id = " + ClientsStorage.getClientId(token) + " and us.next_provision_date > '" + Timestamp.valueOf(LocalDateTime.now()) + "'");
+            final var listAd = new ArrayList<IdDate>();
+            for (var rowPd : availableDates.getRows()) {
+                final String idService = (String) rowPd.getElement("id");
+                final String ad = rowPd.getElement("next_provision_date") != null ?
+                        availableDates.getRowByIndex(0).getElement("next_provision_date").toString()
+                        :
+                        null;
+                listAd.add(new IdDate(idService, ad));
+            }
             new ResponseCreator().sendResponseWithBody(
                     exchange,
                     new LoginResponse(null,
@@ -79,7 +87,7 @@ public class LoginHandler extends HandlerBase {
                             200,
                             token.toString(),
                             name,
-                            ad,
+                            listAd,
                             ClientsStorage.isClientHasAdminPermissions(token)
                     )
             );

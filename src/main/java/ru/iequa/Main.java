@@ -26,6 +26,7 @@ public class Main {
             handlers.add(new RegisterHandler());
             handlers.add(new RecordsReportHandler());
             handlers.add(new CreateNewsDataHandler());
+            handlers.add(new GetPayServicesHandler());
             var handlerResolver = new HandlerResolver(handlers);
             server.createContext("/", handlerResolver);
             ExecutorService executor = Executors.newFixedThreadPool(5);

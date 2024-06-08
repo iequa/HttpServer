@@ -6,9 +6,11 @@ import java.util.UUID;
 
 public class SetCalendarDatetimeRequest extends Request {
     public final SelectedDatetime selectedDatetime;
+    public final int serviceType;
 
-    public SetCalendarDatetimeRequest(int id, UUID clientId, int page, SelectedDatetime selectedDatetime) {
+    public SetCalendarDatetimeRequest(int id, UUID clientId, int page, SelectedDatetime selectedDatetime, int serviceType) {
         super(id, clientId, page);
         this.selectedDatetime = selectedDatetime;
+        this.serviceType = serviceType;
     }
 }

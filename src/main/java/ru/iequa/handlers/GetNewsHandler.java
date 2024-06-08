@@ -46,7 +46,7 @@ public class GetNewsHandler extends HandlerBase {
         final int countOfPages = (int) Math.ceil(DB.getInstance().ExecNonQuery("select count(*) from news") / 10.0);
         final var ldt = LocalDate.now().plusDays(1);
         final var wp = request.id == 0 ? "" : "where news.date < '" + ldt + "' ";
-        DBResult res = DB.getInstance().ExecQuery("select * from news " + wp + "order by news.date DESC offset " + offset);
+        DBResult res = DB.getInstance().ExecQuery("select * from news " + wp + "order by news.date DESC limit 10 offset " + offset);
         final var rows = res.getRows();
         final var responseList = new ArrayList<NewsPreviewData>();
         if (!rows.isEmpty()) {

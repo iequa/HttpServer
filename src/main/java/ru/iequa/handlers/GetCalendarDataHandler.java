@@ -43,6 +43,7 @@ public class GetCalendarDataHandler extends HandlerBase {
         final String json = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         final CalendarDataRequest request = JsonWorker.getInstance().deserialize(json, CalendarDataRequest.class);
         final String currYear = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+        final int typeId = request.typeId;
         final var selectionDates = new ArrayList<String>();
         request.days.forEach(day -> selectionDates.add("':date'"
                 .replace(":date",
@@ -54,7 +55,8 @@ public class GetCalendarDataHandler extends HandlerBase {
                         ).toString()
                 )
         ));
-        DBResult res = DB.getInstance().ExecQuery("select us.provision_date from public.user_services us where date(us.provision_date) in (" + String.join(",", selectionDates) + ")");
+        final var typeIdPart = typeId != 0 ? "and us.service_id = " + typeId : "";
+        DBResult res = DB.getInstance().ExecQuery("select us.provision_date from public.user_services us where date(us.provision_date) in (" + String.join(",", selectionDates) + ")" + typeIdPart);
         final var rows = res.getRows();
         final var dates = new ArrayList<String>();
         for (Row row : rows) {
